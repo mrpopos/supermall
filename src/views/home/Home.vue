@@ -1,21 +1,34 @@
 <template>
-  <div>
-    <h2>首页</h2>
-    <h2>{{ $store.state.token }}</h2>
-
-    <h2>{{ $store.state.counter }}</h2>
-    <h2>{{ $store.getters.powerCounter }}</h2>
-    <button @click="addition">自增</button>
-    <button @click="subtraction">自减</button>
-
-    <h5>{{ $store.state.info }}</h5>
-    <button @click="modifyInfo">点击修改info信息</button>
+  <div id="home">
+    <nav-bar class="home-nav">
+      <h2 slot="center">购物街</h2>
+    </nav-bar>
   </div>
 </template>
 
 <script>
+import NavBar from 'components/common/navbar/NavBar'
+import { getHomeMultidata } from 'network/home'
+
 export default {
   name: 'Home',
+  components: {
+    NavBar
+  },
+  data() {
+    return {
+      // result: null
+      banners: [],
+      recommends: []
+    }
+  },
+  created() {
+    getHomeMultidata().then(res => {
+      console.log(res)
+      this.banners = res.data.banner.list
+      this.recommends = res.data.recommend.list
+    })
+  },
   methods: {
     addition() {
       this.$store.commit('increment')
@@ -24,7 +37,6 @@ export default {
       this.$store.commit('decrement')
     },
     modifyInfo() {
-      // this.$store.commit('modifyInfoCommit')
       this.$store.dispatch('modifyInfoCommit', {
         payload: 'auth-token'
       })
@@ -33,4 +45,9 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+  .home-nav {
+    background-color: var(--color-tint);
+    color: #FFFFFF;
+  }
+</style>
