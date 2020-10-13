@@ -19,6 +19,11 @@ export default {
     line-height: 44px;
     /* background-color: #c6c6c6; */
     box-shadow: 0 2px 1px rgba(100, 100, 100, 0.1);
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 9;
   }
   .left, .right {
     width: 60px;
