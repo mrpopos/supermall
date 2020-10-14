@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     controlClick(index) {
-      console.log(index)
+      // console.log(index)
       this.currentIndex = index
       this.$emit('controlClick', index)
     }

@@ -3,19 +3,14 @@
     <nav-bar class="home-nav">
       <h2 slot="center">购物街</h2>
     </nav-bar>
-    <home-swiper :banners="banners"/>
-    <home-recommend :recommends="recommends"/>
-    <home-feature/>
-    <tab-control :titles="['流行', '新款', '精选']" class="tab-control" @controlClick="controlClick"/>
-    <goods-list :goods="goodsData"/>
-
-    <ul>
-      <li>测试数据1</li>
-      <li>测试数据2</li>
-      <li>测试数据3</li>
-      <li>测试数据4</li>
-      <li>测试数据5</li>
-    </ul>
+    <scroll class="content" ref="scroll" :probe-type="3" @scroll="scrollListen">
+      <home-swiper :banners="banners"/>
+      <home-recommend :recommends="recommends"/>
+      <home-feature/>
+      <tab-control :titles="['流行', '新款', '精选']" class="tab-control" @controlClick="controlClick"/>
+      <goods-list :goods="goodsData"/>
+    </scroll>
+    <back-top @click.native="backTopClick" v-show="topShow"/>
   </div>
 </template>
 
@@ -27,6 +22,8 @@ import HomeFeature from 'views/home/childComps/HomeFeature'
 import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabcontrol/TabControl'
 import GoodsList from 'components/content/goods/GoodsList'
+import Scroll from 'components/common/scroll/Scroll'
+import BackTop from 'components/content/backTop/BackTop'
 
 import { getHomeMultidata, getHomeGoodsdata } from 'network/home'
 
@@ -38,7 +35,9 @@ export default {
     HomeRecommend,
     HomeFeature,
     TabControl,
-    GoodsList
+    GoodsList,
+    Scroll,
+    BackTop
   },
   data() {
     return {
@@ -50,7 +49,8 @@ export default {
         'new': {page: 0, list: []},
         'sell': {page: 0, list: []}
       },
-      currentType: 'pop'
+      currentType: 'pop',
+      topShow: false
     }
   },
   created() {
@@ -80,7 +80,7 @@ export default {
     getHomeGoodsdata(type) {
       const page = this.goods[type].page + 1
       getHomeGoodsdata(type, page).then(res => {
-        console.log(res)
+        // console.log(res)
         // 保存数据
         this.goods[type].list.push(...res.data.list)
         this.goods[type].page += 1
@@ -102,6 +102,15 @@ export default {
           this.currentType = 'sell'
           break;
       }
+    },
+    // 点击返回顶部
+    backTopClick() {
+      this.$refs.scroll.scrollTo(0, 0, 500)
+    },
+    // 监听scroll滚动位置
+    scrollListen(position) {
+      // console.log(position)
+      this.topShow = (-position.y) > 1200
     }
   }
 }
@@ -109,16 +118,27 @@ export default {
 
 <style scoped>
   #home {
-    padding-top: 44px;
+    height: 100vh;
+    position: relative;
   }
   .home-nav {
     background-color: var(--color-tint);
     color: #FFFFFF;
   }
   .tab-control {
-    position: sticky;
-    top: 44px;
+    /* position: sticky; */
+    /* top: 44px; */
     background-color: #ffffff;
     z-index: 9;
+  }
+  .content {
+    height: calc(100% - 93px);
+    overflow: hidden;
+    /* margin-top: 44px; */
+    position: absolute;
+    top: 44px;
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
 </style>
