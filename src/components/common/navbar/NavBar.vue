@@ -20,12 +20,10 @@ export default {
   }
   .left, .right {
     width: 60px;
-    /* background-color: #f00; */
     text-align: center;
   }
   .center {
     flex: 1;
-    /* background-color: #ff0; */
     text-align: center;
   }
 </style>

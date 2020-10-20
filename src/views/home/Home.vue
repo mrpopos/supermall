@@ -39,13 +39,14 @@ import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabcontrol/TabControl'
 import GoodsList from 'components/content/goods/GoodsList'
 import Scroll from 'components/common/scroll/Scroll'
-import BackTop from 'components/content/backTop/BackTop'
 
 import { getHomeMultidata, getHomeGoodsdata } from 'network/home'
 import { debounce } from 'common/utils'
+import { backTopMixin } from 'common/mixin'
 
 export default {
   name: 'Home',
+  mixins: [backTopMixin],
   components: {
     NavBar,
     HomeSwiper,
@@ -53,8 +54,7 @@ export default {
     HomeFeature,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
   },
   data() {
     return {
@@ -67,7 +67,6 @@ export default {
         'sell': {page: 0, list: []}
       },
       currentType: 'pop',
-      topShow: false,
       tabOffsetTop: 0,
       isSwiperImageLoad: false,
       isTabFixed: false
@@ -137,10 +136,6 @@ export default {
       }
       this.$refs.tabControl1.currentIndex = index
       this.$refs.tabControl2.currentIndex = index
-    },
-    // 点击返回顶部
-    backTopClick() {
-      this.$refs.scroll.scrollTo(0, 0, 500)
     },
     // 监听scroll滚动位置
     scrollListen(position) {

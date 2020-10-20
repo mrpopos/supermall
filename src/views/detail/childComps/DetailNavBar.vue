@@ -39,7 +39,11 @@ export default {
   methods: {
     // 监听title点击事件
     titleItemClick(index) {
+      // 设置currentIndex
       this.currentIndex = index
+
+      // 发送点击事件
+      this.$emit('titleItemClick', index)
     },
     // 返回上一页
     backClick() {
