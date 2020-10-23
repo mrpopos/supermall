@@ -5,7 +5,7 @@ module.exports = {
       viewportHeight: 667,
       unitPrecision: 2,
       viewportUnit: 'vw',
-      selectorBlackList: ['tab-bar', 'tab-bar-item'],
+      selectorBlackList: ['tab-bar', 'tab-bar-item', 'nav-bar'],
       minPixelValue: 1,
       mediaQuery: false
     }
