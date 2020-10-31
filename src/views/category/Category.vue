@@ -1,13 +1,16 @@
 <template>
   <div id="category">
-    <nav-bar class="cate-nav">
-      <h3 slot="center">商品分类</h3>
-    </nav-bar>
-    <div class="cate-body">
-      <tab-menu :cate-menu="cateMenu" @getSubCategory="getSubCategory"></tab-menu>
+    <!-- 导航页 -->
+    <nav-bar class="nav-bar"><h3 slot="center">商品分类</h3></nav-bar>
+    <div class="content">
+      <tab-menu :categories="categories" @selectItem="selectItem"></tab-menu>
 
-      <scroll class="cate-sub">
-        <sub-cate-menu :sub-cate="subCate"></sub-cate-menu>
+      <scroll  id="tab-content" :data="[categoryData]">
+        <div>
+          <tab-content-category :subcategories="showSubcategory"></tab-content-category>
+          <tab-control :titles="['综合', '新品', '销量']" @controlClick="controlClick"></tab-control>
+          <tab-content-detail :categoryDetail="showCategoryDetail"></tab-content-detail>
+        </div>
       </scroll>
     </div>
   </div>
@@ -16,51 +19,116 @@
 <script>
 import NavBar from 'components/common/navbar/NavBar'
 import Scroll from 'components/common/scroll/Scroll'
+import TabControl from 'components/content/tabcontrol/TabControl'
 
 import TabMenu from 'views/category/childComps/TabMenu'
-import SubCateMenu from 'views/category/childComps/SubCateMenu'
+import TabContentCategory from 'views/category/childComps/TabContentCategory'
+import TabContentDetail from 'views/category/childComps/TabContentDetail'
 
-import { getCategoryData, getSubCategoryData } from 'network/category'
+import { getCategory, getSubcategory, getCategoryDetail } from 'network/category'
+
+import { POP, SELL, NEW } from 'common/const'
 
 export default {
   name: 'Category',
   components: {
     NavBar,
     TabMenu,
-    SubCateMenu,
-    Scroll
+    Scroll,
+    TabContentCategory,
+    TabControl,
+    TabContentDetail
   },
   data() {
     return {
-      category: {},
-      cateMenu: [],
-      subCate: [],
-      defaultMaitKey: null
+      categories: [],
+      categoryData: {},
+      currentIndex: -1,
+      currentType: 'pop'
     }
   },
   methods: {
-    // 获取子分类数据
-    getSubCategory(maitKey) {
-      // console.log(maitKey)
-      getSubCategoryData(maitKey).then(res => {
-        // console.log(res.data.list)
-        this.subCate = res.data.list
+    _getCategory() {
+      getCategory().then(res => {
+        // 获取分类数据
+        // console.log(res)
+        this.categories = res.data.category.list
+        // 初始化分类详情数据
+        for(let i=0; i<this.categories.length; i++) {
+          // console.log(i)
+          this.categoryData[i] = {
+            subCategories: {},
+            categoryDetail: {
+              'pop': [],
+              'new': [],
+              'sell': []
+            }
+          }
+        }
+        // 3.请求第一个分类的数据
+          this._getSubcategories(0)
       })
+    },
+    _getSubcategories(index) {
+      this.currentIndex = index
+      const maitKey = this.categories[index].maitKey
+      // 请求子分类数据
+      getSubcategory(maitKey).then(res => {
+        // console.log(res)
+        this.categoryData[index].subCategories = res.data
+        // console.log(this.categoryData)
+        this.categoryData = {...this.categoryData}
+        // console.log(this.categoryData)
+
+        this._getCategoryDetail(POP)
+        this._getCategoryDetail(SELL)
+        this._getCategoryDetail(NEW)
+      })
+    },
+    _getCategoryDetail(type) {
+      // 1.获取请求的miniWallkey
+        const miniWallkey = this.categories[this.currentIndex].miniWallkey
+        // 2.发送请求,传入miniWallkey和type
+		    getCategoryDetail(miniWallkey, type).then(res => {
+		      // 3.将获取的数据保存下来
+		      this.categoryData[this.currentIndex].categoryDetail[type] = res
+          this.categoryData = {...this.categoryData}
+        })
+    },
+    /**
+     * 事件响应相关的方法
+     */
+    selectItem(index) {
+      this._getSubcategories(index)
+    },
+    // 监听TabControl的点击
+    controlClick(index) {
+      switch(index) {
+        case 0:
+          this.currentType = 'pop'
+          break;
+        case 1:
+          this.currentType = 'sell'
+          break;
+        case 2:
+          this.currentType = 'new'
+          break;
+      }
     }
   },
   created() {
-    // 获取分类菜单数据
-    getCategoryData().then(res => {
-      // console.log(res)
-      this.category = res
-      this.cateMenu = res.data.category.list
-      const defaultMaitKey = res.data.category.list[0].maitKey
-      // console.log(defaultMaitKey)
-      getSubCategoryData(defaultMaitKey).then(res => {
-        // console.log(res.data.list)
-        this.subCate = res.data.list
-      })
-    })
+    // 获取分类数据
+    this._getCategory()
+  },
+  computed: {
+    showSubcategory() {
+		  if (this.currentIndex === -1) return {}
+        return this.categoryData[this.currentIndex].subCategories
+    },
+    showCategoryDetail() {
+      if (this.currentIndex === -1) return []
+      return this.categoryData[this.currentIndex].categoryDetail[this.currentType]
+    }
   }
 }
 </script>
@@ -69,24 +137,22 @@ export default {
   #category {
     height: 100vh;
   }
-  .cate-nav {
+  .nav-bar {
     background-color: var(--color-tint);
     color: #ffffff;
   }
-  .cate-body {
+  .content {
     position: absolute;
     left: 0;
     right: 0;
     top: 44px;
     bottom: 49px;
+
     display: flex;
   }
-  .cate-sub {
-    position: absolute;
-    left: 90px;
-    right: 0;
-    top: 0;
+  #tab-content {
+    height: 100%;
+    flex: 1;
     overflow: hidden;
-    height: calc(100vh - 93px);
   }
 </style>

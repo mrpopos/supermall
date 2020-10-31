@@ -1,71 +1,65 @@
 <template>
-  <scroll class="content">
-    <div class="cate-menu">
-    <div class="cate-menu-item" 
-        @click="cateClick(index)"
-        :class="{isActive:currentIndex === index}" 
-        v-for="(item, index) in cateMenu" 
-        :key="'catemenu'+index">{{item.title}}</div>
+  <scroll id="tab-menu" :categories="categories">
+    <div class="menu-list">
+      <div class="menu-list-item"
+           :class="{active: index===currentIndex}"
+           v-for="(item, index) in categories"
+           :key="index"
+           @click="itemClick(index)">
+        {{item.title}}
+      </div>
     </div>
   </scroll>
 </template>
 
 <script>
-import Scroll from 'components/common/scroll/Scroll'
+  import Scroll from 'components/common/scroll/Scroll'
 
-export default {
-  name: 'TabMenu',
-  components: {
-    Scroll
-  },
-  data() {
-    return {
-      currentIndex: 0
-    }
-  },
-  methods: {
-    cateClick(index) {
-      this.currentIndex = index
-      // 获取maitKey
-      // console.log(this.cateMenu[index].maitKey)
-      const maitKey = this.cateMenu[index].maitKey
-      // 发出一个点击事件
-      this.$emit('getSubCategory', maitKey)
-
-    }
-  },
-  props: {
-    cateMenu: {
-      type: Array,
+	export default {
+		name: "TabMenu",
+    components: {
+		  Scroll
+    },
+    props: {
+      categories: Array,
       default() {
         return []
       }
+    },
+    data() {
+		  return {
+		    currentIndex: 0
+      }
+    },
+    methods: {
+		  itemClick(index) {
+        this.currentIndex = index
+        this.$emit('selectItem', index)
+      }
     }
-  }
-}
+	}
 </script>
 
 <style scoped>
-  .cate-menu {
-    width: 90px;
-    background-color: #eeeeee;
-    text-align: center;
-  }
-  .cate-menu-item {
-    height: 45px;
-    width: 100%;
-    line-height: 45px;
-    color: rgba(102, 102, 102, .9);
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 14px;
-    border-radius: 4px;
-  }
-  .isActive {
-    background-color: #fff;
-    border-left: 4px solid var(--color-tint);
-  }
-  .content {
+  #tab-menu {
+    background-color: #f6f6f6;
     height: 100%;
+    width: 100px;
+    box-sizing: border-box;
     overflow: hidden;
+  }
+
+  .menu-list-item {
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .menu-list-item.active {
+    font-weight: 700;
+    color: var(--color-high-text);
+    background-color: #fff;
+    border-left: 3px solid var(--color-high-text);
   }
 </style>
