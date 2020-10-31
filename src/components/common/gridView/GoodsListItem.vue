@@ -1,6 +1,6 @@
 <template>
   <div class="goods" @click="goToDetail">
-    <img :src="goods.img" :key="getImg">
+    <img :src="getImg" :key="getImg">
     <div class="goods-info">
       <p>{{goods.title}}</p>
       <span class="price">¥{{goods.price}}</span>
